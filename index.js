@@ -9,7 +9,7 @@ app.use(express.json());
 const userRouter = require('./routes/Users');
 app.use("/users", userRouter);
 
-db, db.sequelize.sync().then(() => {
+db.sequelize.sync().then(() => {
     app.listen(process.env.PORT, () => {
         console.log("Server is running on port", process.env.PORT);
     });
