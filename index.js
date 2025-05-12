@@ -8,6 +8,8 @@ app.use(express.json());
 //Routers
 const userRouter = require('./routes/Users');
 app.use("/users", userRouter);
+const userAuthRouter = require('./routes/UserAuth');
+app.use('/userAuth', userAuthRouter);
 
 db.sequelize.sync().then(() => {
     app.listen(process.env.PORT, () => {
