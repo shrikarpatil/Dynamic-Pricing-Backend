@@ -1,9 +1,11 @@
 require('dotenv').config({ path: '.env.local' });
 const express = require('express');
 const db = require('./models');
+const cors = require('cors');
 const app = express();
 
 app.use(express.json());
+app.use(cors);
 
 //Routers
 const userRouter = require('./routes/Users');
