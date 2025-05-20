@@ -9,10 +9,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      token: {
+      api_key: {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      api_secret: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      password_reset_token: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     });
-    return UserAuth;
+  return UserAuth;
 }
