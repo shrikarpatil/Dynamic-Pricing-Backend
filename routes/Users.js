@@ -1,31 +1,35 @@
 const express = require("express");
 const router = express.Router();
 const { Users } = require("../models");
+const { where } = require("sequelize");
 
 router.get("/", async (req, res) => {
   try {
-    const whereClause = req.query;
-    const fields = req.query.fields ? req.query.fields.split(",") : null;
-    let data;
-    if (Object.keys(whereClause).length > 0) {
-      data = await Users.findAll(
-        { attributes: fields || undefined },
-        { where: { ...whereClause } }
-      );
-    } else {
-      data = await Users.findAll({ attributes: fields || undefined });
-    }
-    if (data) res.status(200).json(data);
+    const { fields, ...filters } = req.query;
+    const attributes = fields ? fields.split(",") : undefined;
+
+    const options = {
+      where: filters,
+      attributes,
+    };
+
+    const data = await Users.findAll(options);
+
+    if (data.length > 0) res.status(200).json(data);
     else res.status(404).json("Not found");
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json(error.message);
   }
 });
+
 router.post("/", async (req, res) => {
   try {
     const user = req.body;
-    await Users.create(user);
-    res.status(200).json("User created successfully.");
+    const data = await Users.findOne({ where: { email: user.email } });
+    if (!data) {
+      await Users.create(user);
+      res.status(200).json("User created successfully.");
+    } else res.status(409).json("User already exists.");
   } catch (error) {
     res.status(500).json(error);
   }
@@ -33,9 +37,10 @@ router.post("/", async (req, res) => {
 
 router.put("/", async (req, res) => {
   try {
-    const { email, ...fieldsToUpdate } = req.body;
+    const fieldsToUpdate = req.body;
+    const { email } = req.query;
     if (!email) {
-      return res.status(400).json("Email is required to delete a user.");
+      return res.status(400).json("Email is required to update a user.");
     }
     const [updatedUsersCount] = await Users.update(
       { ...fieldsToUpdate },

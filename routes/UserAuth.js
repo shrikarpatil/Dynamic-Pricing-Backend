@@ -4,9 +4,12 @@ const router = express.Router();
 
 router.post("/", async (req, res) => {
   try {
-    const data = req.body;
-    await UserAuth.create(data);
-    res.status(200).json("Credentials created");
+    const authData = req.body;
+    const data =await UserAuth.findOne({ where: { email: authData.email } });
+    if (!data) {
+      await UserAuth.create(authData);
+      res.status(200).json("User created successfully.");
+    } else res.status(409).json("User already exists.");
   } catch (error) {
     res.status(500).json(error);
   }
