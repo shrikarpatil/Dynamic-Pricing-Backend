@@ -12,6 +12,8 @@ const userRouter = require('./routes/Users');
 app.use("/users", userRouter);
 const userAuthRouter = require('./routes/UserAuth');
 app.use('/userAuth', userAuthRouter);
+const emailRoutes = require("./routes/Email");
+app.use("/", emailRoutes);
 
 db.sequelize.sync().then(() => {
     app.listen(process.env.PORT, () => {
