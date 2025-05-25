@@ -17,15 +17,16 @@ router.post("/", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const { email } = req.query;
-    const fields = req.query.fields ? req.query.fields.split(",") : null;
-    if (!email) res.status(417).json("Email is requires");
-    const data = await UserAuth.findOne(
-      {
-        attributes: fields || undefined,
-      },
-      { where: { email } }
-    );
+    const fields = req.query.fields ? req.query.fields.split(",") : undefined;
+
+    const data = await UserAuth.findOne({
+      attributes: fields,
+    });
+
+    if (!data) {
+      return res.status(404).json("User not found");
+    }
+
     res.status(200).json(data);
   } catch (error) {
     res.status(500).json(error);
@@ -34,16 +35,26 @@ router.get("/", async (req, res) => {
 
 router.put("/", async (req, res) => {
   try {
-    const { email, ...fieldsToUpdate } = req.body;
-    if (!email) res.status(417).json("Email is requires");
+    const { email } = req.query;
+    const { ...fieldsToUpdate } = req.body;
+
+    if (!email) {
+      return res.status(417).json("Email is required");
+    }
+
     const updatedCount = await UserAuth.update(
       { ...fieldsToUpdate },
       { where: { email: email } }
     );
-    if (updatedCount > 0) res.status(200).json("Update Successful.");
-    else res.status(404).json("No Changes.");
+
+    if (updatedCount[0] > 0) {
+      return res.status(200).json("Update Successful.");
+    } else {
+      return res.status(404).json("No Changes.");
+    }
   } catch (error) {
-    res.status(500).json(error);
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 });
 

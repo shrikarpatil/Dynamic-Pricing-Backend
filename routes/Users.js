@@ -4,8 +4,9 @@ const { Users } = require("../models");
 const { where } = require("sequelize");
 
 router.get("/", async (req, res) => {
-  try {
+  try {    
     const { fields, ...filters } = req.query;
+
     const attributes = fields ? fields.split(",") : undefined;
 
     const options = {
@@ -15,10 +16,16 @@ router.get("/", async (req, res) => {
 
     const data = await Users.findAll(options);
 
-    if (data.length > 0) res.status(200).json(data);
-    else res.status(404).json("Not found");
+    if (data && data.length > 0) {
+      return res.status(200).json(data);
+    } else {
+      return res.status(404).json("Not found");
+    }
   } catch (error) {
-    res.status(500).json(error.message);
+    console.error("Error in GET /users:", error);
+    return res
+      .status(500)
+      .json({ error: error.message || "Internal Server Error" });
   }
 });
 
